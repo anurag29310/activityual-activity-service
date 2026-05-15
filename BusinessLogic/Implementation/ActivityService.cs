@@ -1,76 +1,144 @@
-﻿using ActivityService.Models;
-using IdentityService.BusinessLogic.Interface;
-using IdentityService.Data;
+﻿using ActivityService.BusinessLogic.Interface;
+using ActivityService.Data;
+using ActivityService.DTOs.Request;
+using ActivityService.DTOs.Response;
+using ActivityService.Messaging;
+using ActivityService.Models;
+using AutoMapper;
+using Common.Shared.Event.Events;
 using Microsoft.EntityFrameworkCore;
-using System;
 
-namespace IdentityService.BusinessLogic.Implementation
+namespace ActivityService.BusinessLogic.Implementation
 {
     public class ActivityService : IActivityService
     {
         private readonly ActivityDbContext _context;
-
-        public ActivityService(IConfiguration config, ActivityDbContext context)
+        private readonly IMapper _mapper;
+        private readonly RabbitMqPublisher _publisher;
+        public ActivityService(IConfiguration config, ActivityDbContext context, IMapper mapper, RabbitMqPublisher publisher)
         {
             _context = context;
+            _mapper = mapper;
+            _publisher = publisher;
         }
 
-        public async Task<List<UserActivity>> GetUserActivityAsync()
+        public async Task<List<Activity>> GetUserActivityAsync()
         {
-            return await _context.Activities.ToListAsync();
-        }
-
-        public async Task<UserActivity> CreateUserActivityAsync(UserActivity activity)
-        {
-            activity.Id = Guid.NewGuid();
-            activity.CreatedAt = DateTime.UtcNow;
-
-            _context.Activities.Add(activity);
-            await _context.SaveChangesAsync();
-            return activity;
-        }
-
-        public async Task<UserActivity> GetUserActivityByIdAsync(string id)
-        {
-            if (!Guid.TryParse(id, out var guidId))
+            try
             {
-                return null; // Or handle invalid ID as needed
+                return await _context.Activities.ToListAsync();
             }
+            catch (Exception)
+            {
 
-            var userActivityById = await _context.Activities.FirstOrDefaultAsync(x => x.Id == guidId);
-
-            return userActivityById;
+                throw;
+            }
         }
 
-        public async Task<UserActivity> UpdateUserAcitivityByIdAsync(UserActivity activity)
+        public async Task<string> CreateUserActivityAsync(ActivityRequest activity)
         {
-            var userActivityById = await _context.Activities.FirstOrDefaultAsync(x => x.Id == activity.Id);
-
-            if (userActivityById == null)
+            try
             {
+                if(activity == null)
+                {
+                    throw new ArgumentNullException(nameof(activity));
+                }
+                var mappActivity = _mapper.Map<Activity>(activity);
+                _context.Activities.Add(mappActivity);
+                await _context.SaveChangesAsync();
+                return "Success"; ;
             }
-            _context.Activities.Update(activity);
-            await _context.SaveChangesAsync();
-            return activity;
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<ActivityResponse> GetUserActivityByIdAsync(string id)
+        {
+            try
+            {
+                if (!Guid.TryParse(id, out var guidId))
+                {
+                    return null; // Or handle invalid ID as needed
+                }
+
+                var userActivity = await _context.Activities.FirstOrDefaultAsync(x => x.Id == guidId);
+
+                var mappActivity = _mapper.Map<ActivityResponse>(userActivity);
+
+                return mappActivity;
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+
+        public async Task<string> UpdateUserAcitivityByIdAsync(ActivityRequest activity)
+        {
+            try
+            {
+                var userActivityById = await _context.Activities.FirstOrDefaultAsync(x => x.Id == activity.UserId);
+
+                if (userActivityById == null)
+                {
+                }
+                var mappActivity = _mapper.Map<Activity>(activity);
+
+                _context.Activities.Update(mappActivity);
+                await _context.SaveChangesAsync();
+                return "Success";
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public async Task<string> DeleteUserAcitivityByIdAsync(string id)
         {
-            if (!Guid.TryParse(id, out var guidId))
+            try
             {
-                return null; // Or handle invalid ID as needed
+                if (!Guid.TryParse(id, out var guidId))
+                {
+                    return null; // Or handle invalid ID as needed
+                }
+
+                var userActivityById = await _context.Activities.FirstOrDefaultAsync(x => x.Id == guidId);
+
+                if (userActivityById == null)
+                {
+                    return string.Empty;
+                }
+
+                var delete = await _context.Activities.Where(x => x.Id == guidId).ExecuteDeleteAsync();
+
+                return id;
             }
-
-            var userActivityById = await _context.Activities.FirstOrDefaultAsync(x => x.Id == guidId);
-
-            if (userActivityById == null)
+            catch (Exception)
             {
-                return string.Empty;
+
+                throw;
             }
+        }
 
-            var delete = await _context.Activities.Where(x => x.Id == guidId).ExecuteDeleteAsync();
+        public async  Task CompleteActivity()
+        {
+            // Save to DB first
 
-            return id;
+            var activityEvent = new ActivityCompletedEvent
+            {
+                UserId = Guid.NewGuid(),
+                ActivityType = "Running",
+                Calories = 200,
+                CompletedAt = DateTime.UtcNow
+            };
+
+           await _publisher.Publish(activityEvent, "activity-completed");
         }
 
     }

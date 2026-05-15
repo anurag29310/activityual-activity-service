@@ -1,14 +1,21 @@
 ﻿using ActivityService.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace IdentityService.Data
+namespace ActivityService.Data
 {
     public class ActivityDbContext : DbContext
     {
-        public DbSet<UserActivity> Activities { get; set; }
-
         public ActivityDbContext(DbContextOptions<ActivityDbContext> options)
-            : base(options) { }
+          : base(options) { }
+
+
+        public DbSet<Activity> Activities { get; set; }
+        public DbSet<Category> Categories { get; set; }
+        public DbSet<ActivityTracking> Trackings { get; set; }
+        public DbSet<ActivitySchedule> Schedules { get; set; }
+
+
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

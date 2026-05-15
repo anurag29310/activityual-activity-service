@@ -1,17 +1,21 @@
-﻿using ActivityService.Models;
+﻿using ActivityService.DTOs.Request;
+using ActivityService.DTOs.Response;
+using ActivityService.Models;
 
-namespace IdentityService.BusinessLogic.Interface
+namespace ActivityService.BusinessLogic.Interface
 {
     public interface IActivityService
     {
-        Task<List<UserActivity>> GetUserActivityAsync();
+        Task<List<Activity>> GetUserActivityAsync();
 
-        Task<UserActivity> CreateUserActivityAsync(UserActivity activity);
+        Task<string> CreateUserActivityAsync(ActivityRequest activity);
 
-        Task<UserActivity> GetUserActivityByIdAsync(string id);
+        Task<ActivityResponse> GetUserActivityByIdAsync(string id);
 
-        Task<UserActivity> UpdateUserAcitivityByIdAsync(UserActivity activity); 
+        Task<string> UpdateUserAcitivityByIdAsync(ActivityRequest activity); 
 
-        Task<string> DeleteUserAcitivityByIdAsync(string activity); 
+        Task<string> DeleteUserAcitivityByIdAsync(string activity);
+
+       Task CompleteActivity();
     }
 }

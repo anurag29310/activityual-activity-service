@@ -1,10 +1,10 @@
 ﻿
-namespace ActivityService.Models
+namespace ActivityService.DTOs.Response
 {
-    public class ActivitySchedule : BaseEntity
+    public class ActivityScheduleResponse 
     {
         public Guid ActivityId { get; set; }
-        public Activity Activity { get; set; } = null!;
+        public System.Diagnostics.Activity Activity { get; set; } = null!;
 
         public DayOfWeek? DayOfWeek { get; set; }
 

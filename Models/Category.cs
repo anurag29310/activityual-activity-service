@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-
+﻿
 namespace ActivityService.Models
 {
     public class Category : BaseEntity
