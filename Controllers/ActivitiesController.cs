@@ -1,5 +1,6 @@
-﻿using ActivityService.Models;
-using IdentityService.BusinessLogic.Interface;
+﻿using ActivityService.BusinessLogic.Interface;
+using ActivityService.DTOs.Request;
+using ActivityService.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ActivityService.Controllers
@@ -23,7 +24,7 @@ namespace ActivityService.Controllers
         }
 
         [HttpPost("addActivity")]
-        public async Task<IActionResult> AddUserActivity(UserActivity activity)
+        public async Task<IActionResult> AddUserActivity(ActivityRequest activity)
         {
             await _IActivityService.CreateUserActivityAsync(activity);
 
@@ -38,7 +39,7 @@ namespace ActivityService.Controllers
         }
 
         [HttpPatch("updateActivity")]
-        public async Task<IActionResult> UpdateUserActivityById(UserActivity activity)
+        public async Task<IActionResult> UpdateUserActivityById(ActivityRequest activity)
         { 
             var data = await _IActivityService.UpdateUserAcitivityByIdAsync(activity);
             return Ok(data);
@@ -49,6 +50,14 @@ namespace ActivityService.Controllers
         {
             var data = await _IActivityService.DeleteUserAcitivityByIdAsync(id);
             return Ok(data); 
+        }
+
+        [HttpPost("publishMessage")]
+        public async Task<IActionResult> Publish()
+        {
+            await _IActivityService.CompleteActivity();
+
+            return Ok();
         }
     }
 }

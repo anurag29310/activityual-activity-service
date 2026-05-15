@@ -1,10 +1,9 @@
 ﻿
-namespace ActivityService.Models
+namespace ActivityService.DTOs.Request
 {
-    public class ActivitySchedule : BaseEntity
+    public class ActivityScheduleRequest 
     {
         public Guid ActivityId { get; set; }
-        public Activity Activity { get; set; } = null!;
 
         public DayOfWeek? DayOfWeek { get; set; }
 

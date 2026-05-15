@@ -1,9 +1,8 @@
 ﻿using ActivityService.Models.Enums;
-using System.Diagnostics;
 
 namespace ActivityService.Models
 {
-    public class ActivityLog : BaseEntity
+    public class ActivityTracking : BaseEntity
     {
         public Guid ActivityId { get; set; }
         public Activity Activity { get; set; } = null!;
