@@ -22,6 +22,8 @@ builder.Services.AddScoped<ITrackingService, TrackingService>();
 builder.Services.AddDbContext<ActivityDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
 
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())

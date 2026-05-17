@@ -20,5 +20,8 @@ namespace ActivityService.Models
 
         public ICollection<ActivitySchedule> Schedules { get; set; } = new List<ActivitySchedule>();
         public ICollection<ActivityTracking> Logs { get; set; } = new List<ActivityTracking>();
+
+        public ICollection<AnalyticsLogs> AnalyticsLogs { get; set; }
+       = new List<AnalyticsLogs>();
     }
 }

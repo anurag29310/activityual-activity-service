@@ -1,25 +1,27 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using ActivityService.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace ActivityService.Data.Configuration
 {
-    //public class ActivityLogConfiguration : IEntityTypeConfiguration<ActivityLog>
-    //{
-    //    //public void Configure(EntityTypeBuilder<ActivityLog> builder)
-    //    //{
-    //    //    builder.ToTable("ActivityLogs");
+    public class AnalyticsLogConfiguration
+    : IEntityTypeConfiguration<AnalyticsLogs>
+    {
+        public void Configure(EntityTypeBuilder<AnalyticsLogs> builder)
+        {
+            builder.ToTable("AnalyticsLogs");
 
-    //    //    builder.HasKey(x => x.Id);
+            builder.HasKey(x => x.Id);
 
-    //    //    builder.HasIndex(x => new { x.UserId, x.Date });
-    //    //    builder.HasIndex(x => new { x.ActivityId, x.Date });
+            builder.Property(x => x.Status)
+                .HasConversion<string>();
 
-    //    //    builder.Property(x => x.Status)
-    //    //           .IsRequired();
+            builder.Property(x => x.LogDate)
+                .IsRequired();
 
-    //    //    builder.HasOne(x => x.Activity)
-    //    //           .WithMany(a => a.Logs)
-    //    //           .HasForeignKey(x => x.ActivityId);
-    //    //}
-    //}
+            builder.HasOne(x => x.Activity)
+                .WithMany(x => x.AnalyticsLogs)
+                .HasForeignKey(x => x.ActivityId);
+        }
+    }
 }
