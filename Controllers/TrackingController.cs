@@ -1,11 +1,12 @@
 ﻿using ActivityService.BusinessLogic.Interface;
+using ActivityService.DTOs.Request;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ActivityService.Controllers
 {
     [ApiController]
-    [Route("api/tracking")]
-    public class TrackingController : Controller
+    [Route("api/[controller]")]
+    public class TrackingController : ControllerBase
     {
         private readonly ITrackingService _trackingService;
 
@@ -15,38 +16,51 @@ namespace ActivityService.Controllers
         }
 
         [HttpPost("addTracking")]
-        public IActionResult AddUserTrackingDataAsync()
+        public async Task<IActionResult> AddUserTrackingDataAsync(
+            [FromBody] ActivityTrackingRequest request)
         {
-            var trackingService = _trackingService.AddUserTrackingDataAsync();
-            return View();
+            var result = await _trackingService.AddUserTrackingDataAsync(request);
+
+            return Ok(result);
         }
 
         [HttpPost("addBulkTracking")]
-        public IActionResult AddBulkTrackingDataAsync()
+        public async Task<IActionResult> AddBulkTrackingDataAsync(
+            [FromBody] List<ActivityTrackingRequest> requests)
         {
-            var trackingService = _trackingService.AddBulkTrackingDataAsync();
-            return View();
+            var result = await _trackingService.AddBulkTrackingDataAsync(requests);
+
+            return Ok(result);
         }
 
         [HttpGet("trackingData")]
-        public IActionResult GetAllUserTrackingDataAsync()
+        public async Task<IActionResult> GetAllUserTrackingDataAsync()
         {
-            var trackingService = _trackingService.GetAllUserTrackingDataAsync();
-            return View();
+            var result = await _trackingService.GetAllUserTrackingDataAsync();
+
+            return Ok(result);
         }
 
-        [HttpGet("trackingDataById")]
-        public IActionResult GetUserTrackingDataByIdAsync(string id)
+        [HttpGet("trackingDataById/{id}")]
+        public async Task<IActionResult> GetUserTrackingDataByIdAsync(Guid id)
         {
-            var trackingService = _trackingService.GetUserTrackingDataByIdAsync();
-            return View();
+            var result = await _trackingService.GetUserTrackingDataByIdAsync(id);
+
+            if (result == null)
+                return NotFound();
+
+            return Ok(result);
         }
 
-        [HttpDelete("removeTracking")]
-        public IActionResult DeleteUserTrackingDataByIdAsync()
+        [HttpDelete("removeTracking/{id}")]
+        public async Task<IActionResult> DeleteUserTrackingDataByIdAsync(Guid id)
         {
-            var trackingService = _trackingService.DeleteUserTrackingDataByIdAsync();
-            return View();
+            var result = await _trackingService.DeleteUserTrackingDataByIdAsync(id);
+
+            if (!result)
+                return NotFound();
+
+            return Ok("Tracking deleted successfully.");
         }
     }
 }

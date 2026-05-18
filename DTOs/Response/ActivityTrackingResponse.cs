@@ -9,7 +9,7 @@ namespace ActivityService.DTOs.Response
 
         public Guid UserId { get; set; }
 
-        public DateTime Date { get; set; }
+        public DateTime? Date { get; set; }
 
         public ActivityStatus Status { get; set; }
 

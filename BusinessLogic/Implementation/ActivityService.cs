@@ -133,7 +133,7 @@ namespace ActivityService.BusinessLogic.Implementation
             var activityEvent = new ActivityCompletedEvent
             {
                 UserId = Guid.NewGuid(),
-                ActivityType = "Running",
+                ActivityTitle = "Running",
                 Calories = 200,
                 CompletedAt = DateTime.UtcNow
             };

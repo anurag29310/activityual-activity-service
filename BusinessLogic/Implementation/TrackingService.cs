@@ -1,33 +1,105 @@
 ﻿using ActivityService.BusinessLogic.Interface;
-using Microsoft.OpenApi.Any;
+using ActivityService.Data;
+using ActivityService.DTOs.Request;
+using ActivityService.DTOs.Response;
+using ActivityService.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace ActivityService.BusinessLogic.Implementation
 {
     public class TrackingService : ITrackingService
     {
-        public Task<List<int>> AddBulkTrackingDataAsync()
+        private readonly ActivityDbContext _context;
+
+        public TrackingService(ActivityDbContext context)
         {
-            throw new NotImplementedException();
+            _context = context;
         }
 
-        public Task<int> AddUserTrackingDataAsync()
+        public async Task<ActivityTrackingResponse> AddUserTrackingDataAsync(
+            ActivityTrackingRequest request)
         {
-            throw new NotImplementedException();
+            var entity = new ActivityTracking
+            {
+                Id = Guid.NewGuid(),
+                ActivityId = request.ActivityId,
+                UserId = request.UserId,
+                Date = request.Date,
+                Status = request.Status,
+                ActualCount = request.ActualCount,
+                Notes = request.Notes
+            };
+
+            _context.Trackings.Add(entity);
+
+            await _context.SaveChangesAsync();
+
+            return MapToResponse(entity);
         }
 
-        public Task<bool> DeleteUserTrackingDataByIdAsync()
+        public async Task<List<ActivityTrackingResponse>> AddBulkTrackingDataAsync(
+            List<ActivityTrackingRequest> requests)
         {
-            throw new NotImplementedException();
+            var entities = requests.Select(request => new ActivityTracking
+            {
+                Id = Guid.NewGuid(),
+                ActivityId = request.ActivityId,
+                UserId = request.UserId,
+                Date = request.Date,
+                Status = request.Status,
+                ActualCount = request.ActualCount,
+                Notes = request.Notes
+            }).ToList();
+
+            _context.Trackings.AddRange(entities);
+
+            await _context.SaveChangesAsync();
+
+            return entities.Select(MapToResponse).ToList();
         }
 
-        public Task<List<AnyType>> GetAllUserTrackingDataAsync()
+        public async Task<List<ActivityTrackingResponse>> GetAllUserTrackingDataAsync()
         {
-            throw new NotImplementedException();
+            var data = await _context.Trackings.ToListAsync();
+
+            return data.Select(MapToResponse).ToList();
         }
 
-        public Task<AnyType> GetUserTrackingDataByIdAsync()
+        public async Task<ActivityTrackingResponse?> GetUserTrackingDataByIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var entity = await _context.Trackings.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (entity == null)
+                return null;
+
+            return MapToResponse(entity);
+        }
+
+        public async Task<bool> DeleteUserTrackingDataByIdAsync(Guid id)
+        {
+            var entity = await _context.Trackings.FirstOrDefaultAsync(x => x.Id == id);
+
+            if (entity == null)
+                return false;
+
+            _context.Trackings.Remove(entity);
+
+            await _context.SaveChangesAsync();
+
+            return true;
+        }
+
+        private static ActivityTrackingResponse MapToResponse(ActivityTracking entity)
+        {
+            return new ActivityTrackingResponse
+            {
+                ActivityId = entity.ActivityId,
+                UserId = entity.UserId,
+                Date = entity.Date,
+                Status = entity.Status,
+                ActualCount = entity.ActualCount,
+                Notes = entity.Notes
+            };
         }
     }
 }

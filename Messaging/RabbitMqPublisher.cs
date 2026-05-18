@@ -6,14 +6,37 @@ namespace ActivityService.Messaging
 {
        public class RabbitMqPublisher
     {
+        private readonly IConfiguration _configuration;
+        public RabbitMqPublisher(IConfiguration configuration)
+        {
+            _configuration = configuration;
+        }
         public async Task Publish<T>(T message, string queueName)
         {
+            string rabitMQ = _configuration.GetSection("RabbitMq")["Host"]!;
+
             var factory = new ConnectionFactory()
             {
-                HostName = "localhost"
+                HostName = rabitMQ!
             };
 
-            using var connection = await factory.CreateConnectionAsync();
+            IConnection? connection = null;
+            while (connection == null)
+            {
+                try
+                {
+                    connection =
+                        await factory.CreateConnectionAsync();
+                }
+                catch
+                {
+                    Console.WriteLine(
+                        "RabbitMQ not ready. Retrying...");
+
+                    await Task.Delay(5000);
+                }
+            }
+
 
             using var channel = await connection.CreateChannelAsync();
 

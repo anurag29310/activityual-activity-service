@@ -15,8 +15,6 @@ namespace ActivityService.Data
         public DbSet<ActivitySchedule> Schedules { get; set; }
 
 
-
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfigurationsFromAssembly(typeof(ActivityDbContext).Assembly);
