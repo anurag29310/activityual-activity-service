@@ -72,7 +72,7 @@ public class AnalyticService : IAnalyticService
             .Select(x => new AnalyticMissedActivityResponse
             {
                 ActivityId = x.ActivityId,
-                UserId = x.UserId,
+                UserId = x.UserId ,
                 Date = x.Date,
                 Notes = x.Notes
             })
