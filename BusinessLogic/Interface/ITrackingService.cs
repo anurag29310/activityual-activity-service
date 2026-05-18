@@ -1,17 +1,19 @@
-﻿using Microsoft.OpenApi.Any;
+﻿using ActivityService.DTOs.Request;
+using ActivityService.DTOs.Response;
+using Microsoft.OpenApi.Any;
 
 namespace ActivityService.BusinessLogic.Interface
 {
     public interface ITrackingService
     {
-        Task<int> AddUserTrackingDataAsync();
+        Task<ActivityTrackingResponse> AddUserTrackingDataAsync(ActivityTrackingRequest request);
 
-        Task<List<int>> AddBulkTrackingDataAsync();
+        Task<List<ActivityTrackingResponse>> AddBulkTrackingDataAsync(List<ActivityTrackingRequest> requests);
 
-        Task<AnyType> GetUserTrackingDataByIdAsync();
+        Task<List<ActivityTrackingResponse>> GetAllUserTrackingDataAsync();
 
-        Task<List<AnyType>> GetAllUserTrackingDataAsync();
+        Task<ActivityTrackingResponse?> GetUserTrackingDataByIdAsync(Guid id);
 
-        Task<bool> DeleteUserTrackingDataByIdAsync();
+        Task<bool> DeleteUserTrackingDataByIdAsync(Guid id);
     }
 }

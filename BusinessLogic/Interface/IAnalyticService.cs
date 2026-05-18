@@ -7,10 +7,10 @@ namespace ActivityService.BusinessLogic.Interface
     {
         Task<AnalyticsSummaryResponse> GetSummaryAsync();
 
-        Task<AnalyticStreakResponse> GetStreaksAsync();
+        Task<List<AnalyticStreakResponse>> GetStreaksAsync();
 
         Task<AnalysticConsistencyResponse> GetConsistencyAsync();
 
-        Task<AnalyticMissedActivityResponse> GetMissedAsync();
+        Task<List<AnalyticMissedActivityResponse>> GetMissedAsync();
     }
 }

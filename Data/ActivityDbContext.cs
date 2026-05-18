@@ -13,10 +13,6 @@ namespace ActivityService.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<ActivityTracking> Trackings { get; set; }
         public DbSet<ActivitySchedule> Schedules { get; set; }
-        public DbSet<AnalyticsLogs> AnalyticsLogs { get; set; }
-
-
-
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

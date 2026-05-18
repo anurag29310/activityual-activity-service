@@ -6,6 +6,11 @@
 
         public string ActivityTitle { get; set; }
 
-        public decimal ConsistencyPercentage { get; set; }
+        public int ConsistencyPercentage { get; set; }
+
+        public int TotalTracked { get; set; }
+
+        public int CompletedTracked { get; set; }
+
     }
 }

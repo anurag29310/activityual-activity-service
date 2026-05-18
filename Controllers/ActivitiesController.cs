@@ -51,13 +51,5 @@ namespace ActivityService.Controllers
             var data = await _IActivityService.DeleteUserAcitivityByIdAsync(id);
             return Ok(data); 
         }
-
-        [HttpPost("publishMessage")]
-        public async Task<IActionResult> Publish()
-        {
-            await _IActivityService.CompleteActivity();
-
-            return Ok();
-        }
     }
 }

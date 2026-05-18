@@ -1,29 +1,83 @@
 ﻿using ActivityService.BusinessLogic.Interface;
+using ActivityService.Data;
 using ActivityService.DTOs.Response;
-using Microsoft.OpenApi.Any;
+using ActivityService.Models.Enums;
+using Microsoft.EntityFrameworkCore;
 
-namespace ActivityService.BusinessLogic.Implementation
+public class AnalyticService : IAnalyticService
 {
-    public class AnalyticService : IAnalyticService
+    private readonly ActivityDbContext _context;
+
+    public AnalyticService(ActivityDbContext context)
     {
-        public Task<AnalysticConsistencyResponse> GetConsistencyAsync()
-        {
-            throw new NotImplementedException();
-        }
+        _context = context;
+    }
 
-        public Task<AnalyticMissedActivityResponse> GetMissedAsync()
-        {
-            throw new NotImplementedException();
-        }
+    public async Task<AnalyticsSummaryResponse> GetSummaryAsync()
+    {
+        var totalActivities = await _context.Trackings.CountAsync();
 
-        public Task<AnalyticStreakResponse> GetStreaksAsync()
-        {
-            throw new NotImplementedException();
-        }
+        var completedActivities = await _context.Trackings
+            .CountAsync(x => x.Status == ActivityStatus.Completed);
 
-        public Task<AnalyticsSummaryResponse> GetSummaryAsync()
+        var missedActivities = await _context.Trackings
+            .CountAsync(x => x.Status == ActivityStatus.Missed);
+
+        return new AnalyticsSummaryResponse
         {
-            throw new NotImplementedException();
-        }
+            TotalActivities = totalActivities,
+            CompletedCount = completedActivities,
+            MissedCount = missedActivities
+        };
+    }
+
+    public async Task<List<AnalyticStreakResponse>> GetStreaksAsync()
+    {
+        var data = await _context.Trackings
+            .Where(x => x.Status == ActivityStatus.Completed)
+            .GroupBy(x => x.ActivityId)
+            .Select(x => new AnalyticStreakResponse
+            {
+                ActivityId = x.Key,
+                CurrentStreak = x.Count()
+            })
+            .ToListAsync();
+
+        return data;
+    }
+
+    public async Task<AnalysticConsistencyResponse> GetConsistencyAsync()
+    {
+        var total = await _context.Trackings.CountAsync();
+
+        var completed = await _context.Trackings
+            .CountAsync(x => x.Status == ActivityStatus.Completed);
+
+        var percentage = total == 0
+            ? 0
+            : (double)completed / total * 100;
+
+        return new AnalysticConsistencyResponse
+        {
+            TotalTracked = total,
+            CompletedTracked = completed,
+            ConsistencyPercentage = (int)Math.Round(percentage, 2)
+        };
+    }
+
+    public async Task<List<AnalyticMissedActivityResponse>> GetMissedAsync()
+    {
+        var data = await _context.Trackings
+            .Where(x => x.Status == ActivityStatus.Missed)
+            .Select(x => new AnalyticMissedActivityResponse
+            {
+                ActivityId = x.ActivityId,
+                UserId = x.UserId,
+                Date = x.Date,
+                Notes = x.Notes
+            })
+            .ToListAsync();
+
+        return data;
     }
 }

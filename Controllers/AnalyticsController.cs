@@ -4,10 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace ActivityService.Controllers
 {
     [ApiController]
-    [Route("analytics")]
+    [Route("api/[controller]")]
     public class AnalyticsController : ControllerBase
     {
         private readonly IAnalyticService _analyticsService;
+
         public AnalyticsController(IAnalyticService analyticService)
         {
             _analyticsService = analyticService;
@@ -17,27 +18,32 @@ namespace ActivityService.Controllers
         public async Task<IActionResult> Summary()
         {
             var data = await _analyticsService.GetSummaryAsync();
-            return Ok();
+
+            return Ok(data);
         }
 
         [HttpGet("streaks")]
         public async Task<IActionResult> Streaks()
         {
-            return Ok(await _analyticsService.GetStreaksAsync());
+            var data = await _analyticsService.GetStreaksAsync();
+
+            return Ok(data);
         }
 
         [HttpGet("consistency")]
         public async Task<IActionResult> Consistency()
         {
             var data = await _analyticsService.GetConsistencyAsync();
-            return Ok();
+
+            return Ok(data);
         }
 
         [HttpGet("missed")]
         public async Task<IActionResult> Missed()
         {
             var data = await _analyticsService.GetMissedAsync();
-            return Ok();
+
+            return Ok(data);
         }
     }
 }
