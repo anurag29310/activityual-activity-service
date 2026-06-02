@@ -4,8 +4,6 @@ namespace ActivityService.Models
 {
     public class ActivityTracking : BaseEntity
     {
-        public Guid Id { get; set; }
-
         public Guid ActivityId { get; set; }
 
         public Activity? Activity { get; set; } = null!;
@@ -15,14 +13,12 @@ namespace ActivityService.Models
         public DateTime? Date { get; set; }
 
         public ActivityStatus Status { get; set; }
-
         
         public int? ActualCount { get; set; }
 
         public string? Notes { get; set; }
 
-        public DateTime? CreatedAt { get; set; } = DateTime.UtcNow;
+        public int? Calories { get; set; }
 
-        public DateTime? UpdatedAt { get; set; }
     }
 }

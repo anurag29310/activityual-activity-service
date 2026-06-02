@@ -5,6 +5,8 @@ namespace ActivityService.DTOs.Response
     public class ActivityTrackingResponse
     {
         public Guid ActivityId { get; set; }
+        public Guid Id { get; set; }
+
         public System.Diagnostics.Activity Activity { get; set; } = null!;
 
         public Guid UserId { get; set; }

@@ -6,6 +6,7 @@ namespace ActivityService.DTOs.Response
     public class ActivityResponse 
     {
         public Guid UserId { get; set; }
+        public Guid Id { get; set; }
 
         public string Title { get; set; } = null!;
         public string? Notes { get; set; }

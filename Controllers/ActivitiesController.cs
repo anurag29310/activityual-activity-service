@@ -1,11 +1,13 @@
 ﻿using ActivityService.BusinessLogic.Interface;
 using ActivityService.DTOs.Request;
 using ActivityService.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ActivityService.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class ActivitiesController : ControllerBase
     {

@@ -6,8 +6,6 @@ namespace ActivityService.DTOs.Request
     public class ActivityTrackingRequest
     {
         public Guid ActivityId { get; set; }
-        public ActivityResponse Activity { get; set; } = null!;
-
         public Guid UserId { get; set; }
 
         public DateTime Date { get; set; }
@@ -17,5 +15,7 @@ namespace ActivityService.DTOs.Request
         public int? ActualCount { get; set; } // e.g. pages read
 
         public string? Notes { get; set; }
-    }
+
+        public int? Calories { get; set; }
+    }   
 }

@@ -14,12 +14,10 @@ namespace ActivityService.BusinessLogic.Implementation
     {
         private readonly ActivityDbContext _context;
         private readonly IMapper _mapper;
-        private readonly RabbitMqPublisher _publisher;
-        public ActivityService(IConfiguration config, ActivityDbContext context, IMapper mapper, RabbitMqPublisher publisher)
+        public ActivityService(IConfiguration config, ActivityDbContext context, IMapper mapper)
         {
             _context = context;
             _mapper = mapper;
-            _publisher = publisher;
         }
 
         public async Task<List<Activity>> GetUserActivityAsync()
@@ -43,6 +41,13 @@ namespace ActivityService.BusinessLogic.Implementation
                 {
                     throw new ArgumentNullException(nameof(activity));
                 }
+                var isCategoryValid = await _context.Categories.FirstOrDefaultAsync(x => x.Id == activity.CategoryId);
+                if (isCategoryValid == null)
+                {
+                    throw new ArgumentNullException("Category id is invalid");
+
+                }
+
                 var mappActivity = _mapper.Map<Activity>(activity);
                 _context.Activities.Add(mappActivity);
                 await _context.SaveChangesAsync();
@@ -61,9 +66,8 @@ namespace ActivityService.BusinessLogic.Implementation
             {
                 if (!Guid.TryParse(id, out var guidId))
                 {
-                    return null; // Or handle invalid ID as needed
+                    throw new ArgumentNullException("User id is invalid");
                 }
-
                 var userActivity = await _context.Activities.FirstOrDefaultAsync(x => x.Id == guidId);
 
                 var mappActivity = _mapper.Map<ActivityResponse>(userActivity);
@@ -81,11 +85,19 @@ namespace ActivityService.BusinessLogic.Implementation
         {
             try
             {
-                var userActivityById = await _context.Activities.FirstOrDefaultAsync(x => x.Id == activity.UserId);
+                var userActivityById = await _context.Activities.FirstOrDefaultAsync(x => x.UserId == activity.UserId);
 
                 if (userActivityById == null)
                 {
+                    throw new ArgumentNullException("User id is invalid");
                 }
+                var isCategoryValid = await _context.Categories.FirstOrDefaultAsync(x => x.Id == activity.CategoryId);
+                if (isCategoryValid == null)
+                {
+                    throw new ArgumentNullException("Category id is invalid");
+
+                }
+
                 var mappActivity = _mapper.Map<Activity>(activity);
 
                 _context.Activities.Update(mappActivity);
@@ -125,21 +137,5 @@ namespace ActivityService.BusinessLogic.Implementation
                 throw;
             }
         }
-
-        public async  Task CompleteActivity()
-        {
-            // Save to DB first
-
-            var activityEvent = new ActivityCompletedEvent
-            {
-                UserId = Guid.NewGuid(),
-                ActivityTitle = "Running",
-                Calories = 200,
-                CompletedAt = DateTime.UtcNow
-            };
-
-           await _publisher.Publish(activityEvent, "activity-completed");
-        }
-
     }
 }
