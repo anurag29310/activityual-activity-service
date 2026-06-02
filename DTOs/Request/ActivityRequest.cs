@@ -11,7 +11,6 @@ namespace ActivityService.DTOs.Request
         public string? Notes { get; set; }
 
         public Guid CategoryId { get; set; }
-        public Category Category { get; set; } = null!;
 
         public ActivityFrequencyType FrequencyType { get; set; }
 

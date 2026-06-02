@@ -15,7 +15,5 @@ namespace ActivityService.BusinessLogic.Interface
         Task<string> UpdateUserAcitivityByIdAsync(ActivityRequest activity); 
 
         Task<string> DeleteUserAcitivityByIdAsync(string activity);
-
-       Task CompleteActivity();
     }
 }

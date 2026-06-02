@@ -2,39 +2,60 @@
 using ActivityService.Data;
 using ActivityService.DTOs.Request;
 using ActivityService.DTOs.Response;
+using ActivityService.Messaging;
 using ActivityService.Models;
+using AutoMapper;
+using Common.Shared.Event.Events;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace ActivityService.BusinessLogic.Implementation
 {
     public class TrackingService : ITrackingService
     {
+        private readonly IMapper _mapper;
         private readonly ActivityDbContext _context;
+        private readonly RabbitMqPublisher _publisher;
 
-        public TrackingService(ActivityDbContext context)
+        public TrackingService(IMapper mapper, ActivityDbContext context, RabbitMqPublisher publisher)
         {
+            _mapper = mapper;
             _context = context;
+            _publisher = publisher;
         }
 
-        public async Task<ActivityTrackingResponse> AddUserTrackingDataAsync(
+        public async Task<string> AddUserTrackingDataAsync(
             ActivityTrackingRequest request)
         {
-            var entity = new ActivityTracking
+
+            try
             {
-                Id = Guid.NewGuid(),
-                ActivityId = request.ActivityId,
-                UserId = request.UserId,
-                Date = request.Date,
-                Status = request.Status,
-                ActualCount = request.ActualCount,
-                Notes = request.Notes
-            };
+                var mappTracking = _mapper.Map<ActivityTracking>(request);
 
-            _context.Trackings.Add(entity);
+                _context.Trackings.Add(mappTracking);
 
-            await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync();
 
-            return MapToResponse(entity);
+                var userActivity = await _context.Activities.FirstOrDefaultAsync(x => x.Id == request.ActivityId);
+
+                var trackingEvent = new ActivityCompletedEvent
+                {
+                    UserId = mappTracking.UserId,
+                    ActivityId = mappTracking.ActivityId,
+                    Status = mappTracking.Status.ToString(),
+                    ActivityTitle = userActivity.Title,
+                    Notes = userActivity.Notes,
+                    CompletedAt = DateTime.UtcNow
+                };
+                await _publisher.Publish(trackingEvent, "activity-completed");
+
+                return "Success";
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
         }
 
         public async Task<List<ActivityTrackingResponse>> AddBulkTrackingDataAsync(
@@ -61,18 +82,21 @@ namespace ActivityService.BusinessLogic.Implementation
         public async Task<List<ActivityTrackingResponse>> GetAllUserTrackingDataAsync()
         {
             var data = await _context.Trackings.ToListAsync();
+            var mappTracking = _mapper.Map<List<ActivityTrackingResponse>>(data);
 
-            return data.Select(MapToResponse).ToList();
+            return mappTracking;
         }
 
         public async Task<ActivityTrackingResponse?> GetUserTrackingDataByIdAsync(Guid id)
         {
             var entity = await _context.Trackings.FirstOrDefaultAsync(x => x.Id == id);
 
+            var mappTracking = _mapper.Map<ActivityTrackingResponse>(entity);
+
             if (entity == null)
                 return null;
 
-            return MapToResponse(entity);
+            return mappTracking;
         }
 
         public async Task<bool> DeleteUserTrackingDataByIdAsync(Guid id)

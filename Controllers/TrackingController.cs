@@ -1,10 +1,12 @@
 ﻿using ActivityService.BusinessLogic.Interface;
 using ActivityService.DTOs.Request;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ActivityService.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class TrackingController : ControllerBase
     {

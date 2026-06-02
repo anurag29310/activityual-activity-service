@@ -6,7 +6,7 @@ namespace ActivityService.BusinessLogic.Interface
 {
     public interface ITrackingService
     {
-        Task<ActivityTrackingResponse> AddUserTrackingDataAsync(ActivityTrackingRequest request);
+        Task<string> AddUserTrackingDataAsync(ActivityTrackingRequest request);
 
         Task<List<ActivityTrackingResponse>> AddBulkTrackingDataAsync(List<ActivityTrackingRequest> requests);
 

@@ -1,9 +1,11 @@
 ﻿using ActivityService.BusinessLogic.Interface;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ActivityService.Controllers
 {
     [ApiController]
+    [Authorize]
     [Route("api/[controller]")]
     public class AnalyticsController : ControllerBase
     {
